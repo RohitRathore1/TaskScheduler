@@ -12,3 +12,7 @@ http://127.0.0.1:8000/
 http://127.0.0.1:8000/api/tasks/
 
 http://127.0.0.1:8000/api/tasks/7
+
+# Documentation
+
+- [Redoc](http://127.0.0.1:8000/redoc)
