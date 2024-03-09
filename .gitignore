@@ -1,0 +1,9 @@
+app/__pycache__/
+# api/.pytest_cache/
+# api/app/__pycache__/
+# api/app/routes/__pycache__/
+# api/app/tests/__pycache__/
+# api/.coverage
+alembic/__pycache__/
+alembic/versions/__pycache__/
+app/routes/__pycache__/
