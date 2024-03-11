@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  db:
+    image: bitnami/mariadb:latest
+    container_name: taskscheduler_db
+    restart: always
+    environment:
+      - MARIADB_USER=${MARIADB_USER}
+      - MARIADB_PASSWORD=${MARIADB_PASSWORD}
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      - MARIADB_DATABASE=${MARIADB_DATABASE}
+      - MARIADB_HOST=${DATABASE_HOST}
+    ports:
+      - "3307:3306"
+    volumes:
+      - my_taskscheduler_db_data:/bitnami/mariadb
+  
+  app:
+    image: glob4lh3ll/taskscheduler_app:0.1.0
+    container_name: taskscheduler_app
+    restart: always
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - MARIADB_URI=${MARIADB_URI}
+
+volumes:
+  my_taskscheduler_db_data:
