@@ -2,8 +2,8 @@ job:
   name: mariadb-create-task
   task:
     id: "1"
-    name: "Sample Task"
-    executionTime: "2024-05-25- 00:00:00"
+    name: "Checking Helm Chart Creation"
+    executionTime: "2024-04-16 00:00:00"
   image:
     repository: bitnami/mariadb
     tag: latest

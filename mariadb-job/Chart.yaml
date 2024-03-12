@@ -1,6 +1,8 @@
 apiVersion: v2
-name: mariadb-job
-description: A Helm chart for creating tasks in MariaDB via Kubernetes Jobs
-type: application
+name: my-custom-chart
+description: A Helm chart for deploying MariaDB and a custom job
 version: 0.1.0
-appVersion: latest
+dependencies:
+  - name: mariadb
+    version: 16.5.0
+    repository: https://charts.bitnami.com/bitnami
