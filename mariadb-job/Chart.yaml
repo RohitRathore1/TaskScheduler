@@ -1,0 +1,8 @@
+apiVersion: v2
+name: my-custom-chart
+description: A Helm chart for deploying MariaDB and a custom job
+version: 0.1.0
+dependencies:
+  - name: mariadb
+    version: 16.5.0
+    repository: https://charts.bitnami.com/bitnami
