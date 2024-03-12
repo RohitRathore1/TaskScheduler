@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Values.job.name }}
+spec:
+  template:
+    spec:
+      containers:
+      - name: {{ .Values.job.name }}
+        image: "{{ .Values.job.image.repository }}:{{ .Values.job.image.tag }}"
+        imagePullPolicy: {{ .Values.job.image.pullPolicy }}
+        command: ["/bin/sh", "-c"]
+        args:
+        - >
+          mariadb -h {{ .Values.job.database.host }}
+          -u{{ .Values.job.database.user }}
+          -p{{ .Values.job.database.password }}
+          {{ .Values.job.database.name }}
+          -e "INSERT INTO tasks (id, name, scheduled_time) VALUES ({{ .Values.job.task.id }}, '{{ .Values.job.task.name }}', '{{ .Values.job.task.executionTime }}');"
+      restartPolicy: OnFailure

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: mariadb-job
+description: A Helm chart for creating tasks in MariaDB via Kubernetes Jobs
+type: application
+version: 0.1.0
+appVersion: latest
