@@ -40,3 +40,15 @@ curl -X 'POST' \
   "recurrence": "weekly"
 }'
 ```
+
+
+### Table Creation
+
+```sql
+CREATE TABLE tasks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    scheduled_time DATETIME NOT NULL,
+    recurrence ENUM('ONCE', 'DAILY', 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'QUARTERLY', 'YEARLY') NULL
+);
+```
