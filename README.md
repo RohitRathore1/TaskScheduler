@@ -5,6 +5,7 @@ implemented task scheduler in a container.
 
 ## Directory Structure
 
+```table
 /TaskScheduler
 ├── Dockerfile
 ├── README.md
@@ -27,12 +28,13 @@ implemented task scheduler in a container.
 │   └── values.yaml
 ├── poetry.lock
 └── pyproject.toml
+```
 
 ### File Descriptions
 - `Dockerfile`: Contains instructions for building the Docker image for our application.
 - `README.md`: Provides a detailed explanation of the project, including how to build and deploy the application, 
 prerequisites, and how to run CRUD operations using the deployed resources.
-- `alembic` and `alembic.ini`: Alembic for database migrations, include these files and directories for managing database schema changes.
+- `alembic` and `alembic.ini`: Alembic for database migrations.
 - `app`: Contains our application code.
 - `docker-compose.yml`: Defines and runs multi-container Docker applications; useful for local development and testing.
 - `k8s`: Directory containing Kubernetes YAML files for deploying our application, database, and any other required services.
