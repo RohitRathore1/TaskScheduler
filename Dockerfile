@@ -16,6 +16,11 @@ RUN poetry export -f requirements.txt --output requirements.txt --without-hashes
 # Start a new stage from a slim version of the Python 3.11 image
 FROM python:3.11-slim
 
+# Install MariaDB client
+RUN apt-get update && \
+    apt-get install -y mariadb-client && \
+    rm -rf /var/lib/apt/lists/*
+
 # Copy the requirements file from the previous stage
 COPY --from=requirements-stage /app/requirements.txt .
 
@@ -28,8 +33,16 @@ WORKDIR /app
 # Copy the current directory contents into the container at /app
 COPY . .
 
+# Copy database initialization script
+COPY ./init-db.sql /docker-entrypoint-initdb.d/
+
 # Make port 8000 available to the world outside this container
 EXPOSE 8000
+
+# Use an entrypoint script to initialize the database and start the app
+COPY ./entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 # Command to run the FastAPI app using uvicorn
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
