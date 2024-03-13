@@ -3,7 +3,6 @@
 # Load environment variables from .env file
 source /app/.env
 
-# Wait for the database to be available
 echo "Waiting for DB to be ready..."
 until mariadb -h db -u${MARIADB_USER} -p${MARIADB_PASSWORD} -e 'SELECT 1' > /dev/null 2>&1; do
     sleep 1
@@ -11,9 +10,15 @@ until mariadb -h db -u${MARIADB_USER} -p${MARIADB_PASSWORD} -e 'SELECT 1' > /dev
 done
 echo "MariaDB is up - initializing database if needed..."
 
-# Initialize the database
+# Dynamically granting permissions to the database user
+mariadb -h db -u root -p${MARIADB_ROOT_PASSWORD} <<-EOSQL
+    GRANT ALL ON ${MARIADB_DATABASE}.* TO '${MARIADB_USER}'@'%' IDENTIFIED BY '${MARIADB_PASSWORD}';
+    FLUSH PRIVILEGES;
+EOSQL
+
+# Executing your database schema initialization and data insertion script
 if mariadb -h db -u${MARIADB_USER} -p${MARIADB_PASSWORD} ${MARIADB_DATABASE} < /docker-entrypoint-initdb.d/init-db.sql; then
-    echo "Database initialized and sample tasks inserted successfully."
+    echo "Database initialized successfully."
 else
     echo "Failed to initialize the database."
     exit 1

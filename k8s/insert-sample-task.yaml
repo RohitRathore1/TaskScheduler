@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: insert-sample-task
+spec:
+  template:
+    spec:
+      containers:
+      - name: insert-task
+        image: glob4lh3ll/task-scheduler
+        command: ["/bin/bash", "-c"]
+        args:
+        - >
+          mariadb -h taskscheduler-mariadb-svc
+          -u${MARIADB_USER}
+          -p${MARIADB_PASSWORD}
+          ${MARIADB_DATABASE}
+          -e "INSERT INTO tasks (name, scheduled_time, recurrence) VALUES ('New Task', '2024-01-01 00:00:00', 'ONCE');"
+        env:
+        - name: MARIADB_USER
+          valueFrom:
+            secretKeyRef:
+              name: my-taskscheduler-api-secret
+              key: mariadb-user
+        - name: MARIADB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: my-taskscheduler-api-secret
+              key: mariadb-password
+        - name: MARIADB_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: my-taskscheduler-api-secret
+              key: mariadb-database
+      restartPolicy: Never

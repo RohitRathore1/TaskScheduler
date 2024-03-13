@@ -1,39 +1,36 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mariadb
+  name: taskscheduler-db
   labels:
-    app: mariadb
+    app: taskscheduler-db
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mariadb
+      app: taskscheduler-db
   template:
     metadata:
       labels:
-        app: mariadb
+        app: taskscheduler-db
     spec:
       containers:
       - name: mariadb
         image: bitnami/mariadb:latest
+        volumeMounts:
+        - name: init-db-script
+          mountPath: /docker-entrypoint-initdb.d
         env:
         - name: MARIADB_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: db-credentials
-              key: mariadb-root-password
+              name: my-taskscheduler-api-secret
+              key: MARIADB_ROOT_PASSWORD
         - name: MARIADB_DATABASE
           value: "taskscheduler"
-        - name: MARIADB_USER
-          valueFrom:
-            secretKeyRef:
-              name: db-credentials
-              key: mariadb-user
-        - name: MARIADB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: db-credentials
-              key: mariadb-password
         ports:
         - containerPort: 3306
+      volumes:
+      - name: init-db-script
+        configMap:
+          name: db-init-script

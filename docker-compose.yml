@@ -1,5 +1,9 @@
 version: '3.8'
 
+networks:
+  app-tier:
+    driver: bridge
+
 services:
   db:
     image: bitnami/mariadb:latest
@@ -10,6 +14,8 @@ services:
       - MARIADB_PASSWORD=${MARIADB_PASSWORD}
       - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
       - MARIADB_DATABASE=${MARIADB_DATABASE}
+    networks:
+      - app-tier
     ports:
       - "3307:3306"
     volumes:
@@ -27,6 +33,8 @@ services:
       - "8000:8000"
     environment:
       - DATABASE_URL=mariadb://${MARIADB_USER}:${MARIADB_PASSWORD}@db:3306/${MARIADB_DATABASE}
+    networks: 
+      - app-tier
 
 volumes:
   my_taskscheduler_db_data:
