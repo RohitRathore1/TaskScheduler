@@ -18,7 +18,7 @@ FROM python:3.11-slim
 
 # Install MariaDB client
 RUN apt-get update && \
-    apt-get install -y mariadb-client && \
+    apt-get install -y curl mariadb-client && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy the requirements file from the previous stage
@@ -40,7 +40,7 @@ COPY ./init-db.sql /docker-entrypoint-initdb.d/
 EXPOSE 8000
 
 # Use an entrypoint script to initialize the database and start the app
-COPY ./entrypoint.sh /usr/local/bin/
+COPY ./entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 

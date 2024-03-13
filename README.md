@@ -1,7 +1,7 @@
 # TaskScheduler
-Task scheduler in python that interacts with a SQL database. The service allow users to schedule tasks to 
-be executed at a specified time and provide functionality to retrieve scheduled tasks. Packaged the 
-implemented task scheduler in a container.
+TaskScheduler is a robust and scalable task scheduling application, featuring a Dockerized environment, 
+Kubernetes deployment configurations, RESTful API endpoints for task management, and database migrations 
+handled by Alembic, designed for efficient task execution and management.
 
 ## Directory Structure
 
@@ -13,38 +13,55 @@ implemented task scheduler in a container.
 │   └── <alembic files>
 ├── alembic.ini
 ├── app
-│   └── <application code>
+│   ├── __init__.py
+│   ├── crud.py
+│   ├── database.py
+│   ├── main.py
+│   ├── models.py
+│   ├── routes
+│   │   ├── __init__.py
+│   │   └── task_router.py
+│   ├── schemas.py
+│   └── task_executor.py
 ├── docker-compose.yml
+├── entrypoint.sh
+├── init-db.sql
 ├── k8s
-│   ├── create-job.yaml
-│   ├── db-credentials.yaml
-│   └── deployment.yaml
-├── mariadb-job
-│   ├── Chart.lock
-│   ├── Chart.yaml
-│   ├── charts
-│   ├── templates
-│   │   └── <Helm templates>
-│   └── values.yaml
+│   ├── .env
+│   ├── app
+│   │   ├── chart
+│   │   │   └── job-chart
+│   │   │       ├── Chart.yaml
+│   │   │       ├── templates
+│   │   │       │   └── cron-job.yaml
+│   │   │       ├── values.yaml
+│   │   │       └── .helmignore
+│   │   ├── jobs
+│   │   │   └── crud-job.yaml
+│   │   └── main
+│   │       ├── app-config.yaml
+│   │       ├── app-d.yaml
+│   │       ├── db-credentials.yaml
+│   │       └── maria-d.yaml
+│   └── init-db.sql
 ├── poetry.lock
-└── pyproject.toml
+├── pyproject.toml
 ```
 
 ### File Descriptions
-- `Dockerfile`: Contains instructions for building the Docker image for our application.
-- `README.md`: Provides a detailed explanation of the project, including how to build and deploy the application, 
-prerequisites, and how to run CRUD operations using the deployed resources.
-- `alembic` and `alembic.ini`: Alembic for database migrations.
-- `app`: Contains our application code.
-- `docker-compose.yml`: Defines and runs multi-container Docker applications; useful for local development and testing.
-- `k8s`: Directory containing Kubernetes YAML files for deploying our application, database, and any other required services.
-    - `create-job.yaml`: Defines Kubernetes jobs for CRUD operations.
-    - `db-credentials.yaml`: Stores database credentials as Kubernetes secrets.
-    - `deployment.yaml`: Defines the deployment for our application and other required services.
-- `mariadb-job`: Contains a Helm chart for deploying MariaDB and initializing it with required schema or data.
-    - `templates`: Helm templates for defining Kubernetes resources.
-    - `values.yaml`: Specifies default values for the Helm chart.
-- `poetry.lock` and `pyproject.toml`: Poetry for dependency management.
+
+- `Dockerfile`: Defines the Docker container configuration for building the TaskScheduler application.
+- `README.md`: Offers an overview and documentation for the TaskScheduler project.
+- `alembic/`: Contains Alembic migration scripts for database schema updates.
+    - `alembic.ini`: Configuration file for Alembic, specifying how database migrations are handled.
+- `app/`: The application's core directory, housing the Python code for task management, database interaction, and API routing.
+- `docker-compose.yml`: YAML file for defining and running multi-container Docker applications, used to orchestrate the TaskScheduler service and its dependencies.
+- `entrypoint.sh`: Shell script executed at the start of the Docker container to set up the environment or perform initial tasks.
+- `init-db.sql`: SQL script for initial database setup, creating necessary tables and seeding data.
+- `k8s/`: Contains Kubernetes configuration files (manifests) for deploying the TaskScheduler application in a Kubernetes cluster.
+- `poetry.lock`: Automatically generated file by Poetry to lock dependencies to specific versions, ensuring consistent builds.
+- `pyproject.toml`: Configuration file for Poetry, specifying project details and dependencies.
+
 
 ## Running Locally
 
@@ -52,7 +69,7 @@ If running locally, ensure that you have Python 3.8 or higher installed on your 
 Run using the following command:
 
 ```
-poetry run uvicorn app.main:app --reload
+$ poetry run uvicorn app.main:app --reload
 ```
 
 Application will be running at the following ports:
@@ -90,101 +107,18 @@ Make sure you have `Docker` & `docker-compose` installed on your machine.
 - Clone the reository and navigate to the root directory of the project.
 
 ```
-git clone git@github.com:RohitRathore1/TaskScheduler.git
+$ git clone git@github.com:RohitRathore1/TaskScheduler.git
 ```
 
 - Build the Docker image using the following command:
 ```
-docker build -t task-scheduler .
+$ docker build -t task-scheduler .
 ```
 
 - Run the Docker container using the following command:
 ```
-(taskscheduler-py3.11) (base) TeAmP0is0N@laas3-host:~/TaskScheduler$ docker compose up
-[+] Running 2/0
- ✔ Container taskscheduler_db   Created                                                                                                                                                                           0.0s 
- ✔ Container taskscheduler_app  Created                                                                                                                                                                           0.0s 
-Attaching to taskscheduler_app, taskscheduler_db
-taskscheduler_db   | mariadb 07:02:47.44 INFO  ==> 
-taskscheduler_db   | mariadb 07:02:47.44 INFO  ==> Welcome to the Bitnami mariadb container
-taskscheduler_db   | mariadb 07:02:47.44 INFO  ==> Subscribe to project updates by watching https://github.com/bitnami/containers
-taskscheduler_db   | mariadb 07:02:47.45 INFO  ==> Submit issues and feature requests at https://github.com/bitnami/containers/issues
-taskscheduler_db   | mariadb 07:02:47.45 INFO  ==> 
-taskscheduler_db   | mariadb 07:02:47.45 INFO  ==> ** Starting MariaDB setup **
-taskscheduler_db   | mariadb 07:02:47.49 INFO  ==> Validating settings in MYSQL_*/MARIADB_* env vars
-taskscheduler_db   | mariadb 07:02:47.49 INFO  ==> Initializing mariadb database
-taskscheduler_db   | mariadb 07:02:47.51 INFO  ==> Updating 'my.cnf' with custom configuration
-taskscheduler_db   | mariadb 07:02:47.52 INFO  ==> Setting user option
-taskscheduler_db   | mariadb 07:02:47.53 INFO  ==> Setting slow_query_log option
-taskscheduler_db   | mariadb 07:02:47.54 INFO  ==> Setting long_query_time option
-taskscheduler_db   | mariadb 07:02:47.55 INFO  ==> Using persisted data
-taskscheduler_db   | /opt/bitnami/mariadb/bin/mysql: Deprecated program name. It will be removed in a future release, use '/opt/bitnami/mariadb/bin/mariadb' instead
-taskscheduler_db   | /opt/bitnami/mariadb/bin/mysql: Deprecated program name. It will be removed in a future release, use '/opt/bitnami/mariadb/bin/mariadb' instead
-taskscheduler_db   | /opt/bitnami/mariadb/bin/mysql: Deprecated program name. It will be removed in a future release, use '/opt/bitnami/mariadb/bin/mariadb' instead
-taskscheduler_db   | mariadb 07:02:47.60 INFO  ==> Running mysql_upgrade
-taskscheduler_db   | mariadb 07:02:47.60 INFO  ==> Starting mariadb in background
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] Starting MariaDB 11.2.3-MariaDB source revision 79580f4f96fc2547711f674eb8dd514abd312b4a as process 65
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] InnoDB: Compressed tables use zlib 1.2.13
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] InnoDB: Using transactional memory
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] InnoDB: Number of transaction pools: 1
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] mysqld: O_TMPFILE is not supported on /opt/bitnami/mariadb/tmp (disabling future attempts)
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] InnoDB: Using Linux native AIO
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] InnoDB: Initializing buffer pool, total size = 128.000MiB, chunk size = 2.000MiB
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] InnoDB: Completed initialization of buffer pool
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] InnoDB: File system buffers for log disabled (block size=512 bytes)
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] InnoDB: End of log at LSN=61545
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] InnoDB: Opened 3 undo tablespaces
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] InnoDB: 128 rollback segments in 3 undo tablespaces are active.
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] InnoDB: Removed temporary tablespace data file: "./ibtmp1"
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] InnoDB: Setting file './ibtmp1' size to 12.000MiB. Physically writing the file full; Please wait ...
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] InnoDB: File './ibtmp1' size is now 12.000MiB.
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] InnoDB: log sequence number 61545; transaction id 43
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] Plugin 'FEEDBACK' is disabled.
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] Plugin 'wsrep-provider' is disabled.
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] InnoDB: Loading buffer pool(s) from /bitnami/mariadb/data/ib_buffer_pool
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] Recovering after a crash using tc.log
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] Starting table crash recovery...
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] Crash table recovery finished.
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] Server socket created on IP: '127.0.0.1'.
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Warning] 'proxies_priv' entry '@% root@e38d78bd5050' ignored in --skip-name-resolve mode.
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] mysqld: Event Scheduler: Loaded 0 events
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] /opt/bitnami/mariadb/sbin/mysqld: ready for connections.
-taskscheduler_db   | Version: '11.2.3-MariaDB'  socket: '/opt/bitnami/mariadb/tmp/mysql.sock'  port: 3306  Source distribution
-taskscheduler_db   | 2024-03-12  7:02:47 0 [Note] InnoDB: Buffer pool(s) load completed at 240312  7:02:47
-taskscheduler_app  | /usr/local/lib/python3.11/site-packages/pydantic/_internal/_config.py:322: UserWarning: Valid config keys have changed in V2:
-taskscheduler_app  | * 'orm_mode' has been renamed to 'from_attributes'
-taskscheduler_app  |   warnings.warn(message, UserWarning)
-taskscheduler_app  | 2024-03-12 07:02:49,056 - INFO - Scheduler started
-taskscheduler_app  | INFO:     Started server process [1]
-taskscheduler_app  | INFO:     Waiting for application startup.
-taskscheduler_app  | 2024-03-12 07:02:49,074 - INFO - Starting scheduler and loading tasks...
-taskscheduler_app  | 2024-03-12 07:02:49,074 - INFO - Scheduler started
-taskscheduler_app  | 2024-03-12 07:02:49,079 - ERROR - Error during scheduler startup: (pymysql.err.OperationalError) (2003, "Can't connect to MySQL server on 'db' ([Errno 111] Connection refused)")
-taskscheduler_app  | (Background on this error at: https://sqlalche.me/e/20/e3q8)
-taskscheduler_app  | INFO:     Application startup complete.
-taskscheduler_app  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+$ docker compose up
 ```
-
-- Access the application at the following URL:
-    - http://127.0.0.1:8000/
-    ```json
-    {"message":"Welcome to the Task Scheduler API!"}
-    ```
-- Access the documentation of API at the following URL:
-    - [Redoc]([http://](http://127.0.0.1:8000/redoc)
-
-- Fetch the list of tasks from the database and return them in JSON format.
-    - http://127.0.0.1:8000/api/tasks/
-    ```json
-    [{"name":"Second Updated Task","scheduled_time":"2024-04-20T10:00:00","recurrence":"weekly","id":1},{"name":"Finish reading 'Atomic Habits'","scheduled_time":"2024-05-01T10:00:00","recurrence":"once","id":2},{"name":"Begin learning Spanish on Duolingo","scheduled_time":"2024-09-01T09:00:00","recurrence":"daily","id":3},{"name":"Start a daily meditation practice","scheduled_time":"2024-08-01T07:00:00","recurrence":"daily","id":4},{"name":"Run a half marathon","scheduled_time":"2024-07-01T06:00:00","recurrence":"once","id":5},{"name":"Complete the Python Advanced course","scheduled_time":"2024-06-01T10:00:00","recurrence":"once","id":6},{"name":"Task After Deletion","scheduled_time":"2024-10-01T10:00:00","recurrence":"once","id":7},{"name":"Play cricket","scheduled_time":"2024-03-15T15:00:00","recurrence":"weekly","id":8}]
-    ```
-
-- Parse the task with id 2 from the database and return it in JSON format.
-    - http://http://127.0.0.1:8000/api/tasks/2
-    ```json
-    {"name":"Finish reading 'Atomic Habits'","scheduled_time":"2024-05-01T10:00:00","recurrence":"once","id":2}
-    ```
 
 - Create a new task using the following command:
 ```bash
@@ -201,37 +135,45 @@ taskscheduler_app  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTR
 {"name":"Attend coding webinar","scheduled_time":"2024-04-10T18:00:00","recurrence":"once","id":9}(taskscheduler-py3.11) (base)
 ```
 
+- Access the application at the following URL:
+    - http://127.0.0.1:8000/
+    ```json
+    {"message":"Welcome to the Task Scheduler API!"}
+    ```
+- Access the documentation of API at the following URL:
+    - [Redoc]([http://](http://127.0.0.1:8000/redoc)
+
+- Fetch the list of tasks from the database and return them in JSON format.
+    - http://127.0.0.1:8000/api/tasks/
+    ```json
+    [{"name":"Attend coding webinar","scheduled_time":"2024-04-10T18:00:00","recurrence":"once","id":1},{"name":"Weekly Grocery Shopping","scheduled_time":"2024-03-20T10:00:00","recurrence":"weekly","id":2},{"name":"Monthly Subscription Renewal","scheduled_time":"2024-04-01T12:00:00","recurrence":"monthly","id":3},{"name":"Annual Health Checkup","scheduled_time":"2024-05-15T09:00:00","recurrence":"yearly","id":4},{"name":"Daily Morning Yoga","scheduled_time":"2024-03-25T07:30:00","recurrence":"daily","id":5},{"name":"Biweekly Project Meeting","scheduled_time":"2024-03-28T14:00:00","recurrence":"biweekly","id":6}]
+    ```
+
+- Parse the task with id 2 from the database and return it in JSON format.
+    - http://http://127.0.0.1:8000/api/tasks/2
+    ```json
+    {"name":"Weekly Grocery Shopping","scheduled_time":"2024-03-20T10:00:00","recurrence":"weekly","id":2}
+    ```
+
+As per your needs you can add more tasks like this. The DB will look like this:
+
+```sql
+MariaDB [taskscheduler]> SELECT * FROM tasks;
++----+------------------------------+---------------------+------------+
+| id | name                         | scheduled_time      | recurrence |
++----+------------------------------+---------------------+------------+
+|  1 | Attend coding webinar        | 2024-04-10 18:00:00 | ONCE       |
+|  2 | Weekly Grocery Shopping      | 2024-03-20 10:00:00 | WEEKLY     |
+|  3 | Monthly Subscription Renewal | 2024-04-01 12:00:00 | MONTHLY    |
+|  4 | Annual Health Checkup        | 2024-05-15 09:00:00 | YEARLY     |
+|  5 | Daily Morning Yoga           | 2024-03-25 07:30:00 | DAILY      |
+|  6 | Biweekly Project Meeting     | 2024-03-28 14:00:00 | BIWEEKLY   |
++----+------------------------------+---------------------+------------+
+6 rows in set (0.001 sec)
+```
+
 - Check the newly created task using the following command:
 ```bash
-(taskscheduler-py3.11) (base) TeAmP0is0N@laas3-host:~/TaskScheduler$ docker exec -it taskscheduler_db bash
-I have no name!@298f0f90c4f8:/$ mariadb -u root -p
-Enter password: 
-Welcome to the MariaDB monitor.  Commands end with ; or \g.
-Your MariaDB connection id is 4
-Server version: 11.2.3-MariaDB Source distribution
-
-Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
-
-Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
-
-MariaDB [(none)]> SHOW DATABASES;
-+--------------------+
-| Database           |
-+--------------------+
-| information_schema |
-| mysql              |
-| performance_schema |
-| sys                |
-| taskscheduler      |
-| test               |
-+--------------------+
-6 rows in set (0.001 sec)
-
-MariaDB [(none)]> USE taskscheduler;
-Reading table information for completion of table and column names
-You can turn off this feature to get a quicker startup with -A
-
-Database changed
 MariaDB [taskscheduler]> SHOW TABLES;
 +-------------------------+
 | Tables_in_taskscheduler |
@@ -241,49 +183,125 @@ MariaDB [taskscheduler]> SHOW TABLES;
 1 row in set (0.001 sec)
 
 MariaDB [taskscheduler]> SELECT * FROM tasks;
-+----+-------------------------------------+---------------------+------------+
-| id | name                                | scheduled_time      | recurrence |
-+----+-------------------------------------+---------------------+------------+
-|  1 | Second Updated Task                 | 2024-04-20 10:00:00 | WEEKLY     |
-|  2 | Finish reading 'Atomic Habits'      | 2024-05-01 10:00:00 | ONCE       |
-|  3 | Begin learning Spanish on Duolingo  | 2024-09-01 09:00:00 | DAILY      |
-|  4 | Start a daily meditation practice   | 2024-08-01 07:00:00 | DAILY      |
-|  5 | Run a half marathon                 | 2024-07-01 06:00:00 | ONCE       |
-|  6 | Complete the Python Advanced course | 2024-06-01 10:00:00 | ONCE       |
-|  7 | Task After Deletion                 | 2024-10-01 10:00:00 | ONCE       |
-|  8 | Play cricket                        | 2024-03-15 15:00:00 | WEEKLY     |
-|  9 | Attend coding webinar               | 2024-04-10 18:00:00 | ONCE       |
-+----+-------------------------------------+---------------------+------------+
-9 rows in set (0.001 sec)
-
-MariaDB [taskscheduler]> 
++----+------------------------------+---------------------+------------+
+| id | name                         | scheduled_time      | recurrence |
++----+------------------------------+---------------------+------------+
+|  1 | Attend coding webinar        | 2024-04-10 18:00:00 | ONCE       |
+|  2 | Weekly Grocery Shopping      | 2024-03-20 10:00:00 | WEEKLY     |
+|  3 | Monthly Subscription Renewal | 2024-04-01 12:00:00 | MONTHLY    |
+|  4 | Annual Health Checkup        | 2024-05-15 09:00:00 | YEARLY     |
+|  5 | Daily Morning Yoga           | 2024-03-25 07:30:00 | DAILY      |
+|  6 | Biweekly Project Meeting     | 2024-03-28 14:00:00 | BIWEEKLY   |
++----+------------------------------+---------------------+------------+
+6 rows in set (0.001 sec)
 ```
 
 In the same way we can perform other CRUD operations using the API.
 
 # Run Image Using Kubernetes
 
-Make sure you have `kubectl` and `minikube` installed on your machine.
+Start by deploying the application within the Kubernetes cluster. Navigate to the `k8s/app` directory and apply the 
+Kubernetes configurations for the deployment and service:
 
-- Start the minikube cluster using the following command:
 ```bash
-minikube start
+$ cd k8s/app
+$ kubectl apply -f main/
 ```
 
-- Deploy the application using the following command:
+This step will initiate the deployment and service for the TaskScheduler application, making it operational within 
+your Kubernetes cluster.
+
+## Scheduling Jobs in Kubernetes
+
+After deploying the application, you can schedule jobs in Kubernetes to execute tasks at specific times.
+
+### Method 1: Manual CronJob Creation
+
+For manual job creation, examples can be found in the `jobs/` directory. You'll need to specify the job name and 
+schedule (in cron format) within the yaml file. To create and schedule the job, apply the yaml file with kubectl:
+
 ```bash
-kubectl apply -f k8s/
+kubectl apply -f crud-job.yaml
 ```
 
-- Check the status of the pods using the following command:
+This command creates the job in Kubernetes, and it will be triggered according to the specified schedule.
+
+### Method 2: Using Helm Chart
+
+An easier alternative for job creation is using a Helm chart. Navigate to the `chart/job-chart` directory and run 
+the following command, adjusting the `name`, `id`, and `schedule` values as necessary:
+
 ```bash
-kubectl get pods
+$ cd chart/job-chart
+$ helm install release1 . --set enabled=false --set name=job-name --set id=3 --set schedule="*/1 * * * *"
 ```
 
-- Access the application using the following command:
+This command installs the job using Helm, with the flexibility to customize the job's name, unique identifier (id), 
+and execution schedule. To preview the job YAML configuration generated by Helm, execute the helm template command 
+in the job chart directory:
+
 ```bash
-minikube service taskscheduler-app
+$ helm template .
+---
+# Source: job-chart/templates/cron-job.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: my-curl-cron-job
+  labels:
+    id: job-2
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: task-scheduler-job
+        spec:
+          containers:
+          - name: curl-container
+            image: curlimages/curl:latest
+            command: ["sh", "-c"]
+            args:
+            - |
+              curl -X 'POST' \
+                  'http://task-scheduler-service:8000/api/tasks/' \
+                  -H 'accept: application/json' \
+                  -H 'Content-Type: application/json' \
+                  -d '{
+                  "name": "my-curl-cron-job",
+                  "scheduled_time": "2024-03-20T10:00:00",
+                  "recurrence": "weekly"
+                }'
+          restartPolicy: OnFailure
 ```
+
+This provides an overview of the job configuration that will be applied, including the name, schedule, 
+and other parameters specified during the Helm chart installation.
+
+## Monitoring and Managing Jobs
+
+Once the job is created, it will execute according to the defined schedule. You can monitor job execution 
+and manage jobs using standard Kubernetes commands like `kubectl get jobs` and `kubectl describe job <job-name>`.
+
+## Minikube Dashboard
+
+If you're using Minikube, you can access the Kubernetes dashboard to monitor and manage jobs.
+
+```bash
+$ minikube dashboard
+```
+
+This command opens the Minikube dashboard in your default web browser, providing a visual interface to monitor.
+Below are the screenshots of the dashboard.
+
+![Image 1](images/1.png)
+![Image 2](images/2.png)
+![Image 3](images/3.png)
+![Image 4](images/4.png)
+![Image 5](images/5.png)
+
 
 # Database Schema
 

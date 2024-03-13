@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-scheduler-app
+spec:
+  selector:
+    matchLabels:
+      app: task-scheduler
+  template:
+    metadata:
+      labels:
+        app: task-scheduler
+    spec:
+      initContainers:
+      - name: wait-for-db
+        image: busybox
+        command: ['sh', '-c', 'until nc -z ${DATABASE_HOST} ${DATABASE_PORT}; do echo waiting for db; sleep 2; done;']
+        env:
+        - name: DATABASE_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: DATABASE_HOST
+        - name: DATABASE_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: DATABASE_PORT
+      containers:
+      - name: task-scheduler
+        image: glob4lh3ll/task-scheduler:latest
+        env:
+        - name: MARIADB_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: mariadb-user
+        - name: MARIADB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: mariadb-password
+        - name: DATABASE_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: DATABASE_HOST
+        - name: DATABASE_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: DATABASE_PORT
+        - name: MARIADB_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: MARIADB_DATABASE
+        - name: MARIADB_URI
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: MARIADB_URI
+        ports:
+        - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: task-scheduler-service
+spec:
+  ports:
+  - port: 8000
+    targetPort: 8000
+  selector:
+    app: task-scheduler

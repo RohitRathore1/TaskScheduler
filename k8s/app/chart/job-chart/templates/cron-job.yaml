@@ -1,0 +1,33 @@
+{{- if .Values.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Values.name }}
+  labels:
+    id: job-{{ .Values.id }}
+spec:
+  schedule: "{{ .Values.schedule }}"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: task-scheduler-job
+        spec:
+          containers:
+          - name: curl-container
+            image: curlimages/curl:latest
+            command: ["sh", "-c"]
+            args:
+            - |
+              curl -X 'POST' \
+                  'http://task-scheduler-service:8000/api/tasks/' \
+                  -H 'accept: application/json' \
+                  -H 'Content-Type: application/json' \
+                  -d '{
+                  "name": "{{ .Values.name }}",
+                  "scheduled_time": "2024-03-20T10:00:00",
+                  "recurrence": "weekly"
+                }'
+          restartPolicy: OnFailure
+{{- end }}
