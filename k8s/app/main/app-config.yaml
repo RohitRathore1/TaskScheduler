@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  DATABASE_HOST: db.default.svc.cluster.local
+  DATABASE_PORT: "3306"
+  MARIADB_DATABASE: taskscheduler
+  MARIADB_URI: "mysql+pymysql://admin:admin@db/taskscheduler?charset=utf8mb4"
