@@ -233,7 +233,7 @@ the following command, adjusting the `name`, `id`, and `schedule` values as nece
 
 ```bash
 $ cd chart/job-chart
-$ helm install release1 . --set enabled=false --set name=job-name --set id=3 --set schedule="*/1 * * * *"
+$ helm install release1 . --set name=job-name --set id=3 --set schedule="*/1 * * * *"
 ```
 
 This command installs the job using Helm, with the flexibility to customize the job's name, unique identifier (id), 
