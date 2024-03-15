@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: Weekly Grocery Shopping -- 1000
+  name: weekly-grocery-shopping-1000
   labels:
     id: job-1
 spec:
